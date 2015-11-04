@@ -226,7 +226,7 @@ function eval_split(split_index, max_batches)
         local x, y = loader:next_batch(split_index)
         x,y = prepro(x,y)
         -- forward pass
-        for t=1,opt.seq_length do
+        for t=1,100 do--opt.seq_length do
             clones.rnn[t]:evaluate() -- for dropout proper functioning
             local lst = clones.rnn[t]:forward{x[t], unpack(rnn_state[t-1])}
             rnn_state[t] = {}
@@ -239,7 +239,7 @@ function eval_split(split_index, max_batches)
         print(i .. '/' .. n .. '...')
     end
 
-    loss = loss / opt.seq_length / n
+    loss = loss / 100 / n--opt.seq_length / n
     return loss
 end
 
@@ -258,7 +258,7 @@ function feval(x)
     local rnn_state = {[0] = init_state_global}
     local predictions = {}           -- softmax outputs
     local loss = 0
-    for t=1,opt.seq_length do
+    for t=1,100 do     --,opt.seq_length do
         clones.rnn[t]:training() -- make sure we are in correct mode (this is cheap, sets flag)
         local lst = clones.rnn[t]:forward{x[t], unpack(rnn_state[t-1])}
         rnn_state[t] = {}
@@ -266,11 +266,11 @@ function feval(x)
         predictions[t] = lst[#lst] -- last element is the prediction
         loss = loss + clones.criterion[t]:forward(predictions[t], y[t])
     end
-    loss = loss / opt.seq_length
+    loss = loss / 100--opt.seq_length
     ------------------ backward pass -------------------
     -- initialize gradient at time t to be zeros (there's no influence from future)
     local drnn_state = {[opt.seq_length] = clone_list(init_state, true)} -- true also zeros the clones
-    for t=opt.seq_length,1,-1 do
+    for t= 100,1,-1 do     --opt.seq_length,1,-1 do
         -- backprop through loss, and softmax/linear
         local doutput_t = clones.criterion[t]:backward(predictions[t], y[t])
         table.insert(drnn_state[t], doutput_t)
