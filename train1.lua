@@ -214,7 +214,7 @@ end
 -- evaluate the loss over an entire split
 function eval_split(split_index, max_batches)
     print('evaluating loss over split index ' .. split_index)
-    local n = loader.split_sizes[split_index]
+    local n =100--= loader.split_sizes[split_index]
     if max_batches ~= nil then n = math.min(max_batches, n) end
 
     loader:reset_batch_pointer(split_index) -- move batch iteration pointer for this split to front
